@@ -12,6 +12,8 @@ from time import sleep
 #debug!
 print("Initialize")
 
+
+
 GPIO.setmode(GPIO.BCM)
 
 # Define Keypad matrix
@@ -89,13 +91,14 @@ try:
 
             # Turn on column power
             GPIO.output(COL[j],1)
+            sleep(0.001)
 
             # Poll for inputs
             
             for i in range(4):
-                if GPIO.event_detected(ROW[i]):
+                if GPIO.event_detected(ROW[i]) and GPIO.input(ROW[i]) == 1:
 
-                    sleep(1)
+
                     
                     pressed = str(MATRIX[i][j])
                     
@@ -103,11 +106,33 @@ try:
                     # print(pressed)
                     
                     # when a button is pressed, add it to the answer string by calling a function.
-                    if pressed != "#":
-                        answer = appendAnswer(pressed, answer)
-                        print(answer)
-                        sleep(0.1)
-                    else:
+
+                    #Old code block for # to answer
+#                    if pressed != "#":
+#                        answer = appendAnswer(pressed, answer)
+#                        print(answer)
+#                        sleep(0.1)
+#                    else:
+#                        rdJudge = checkAnswer(answer, rdKey)
+#                        accntJudge = checkAnswer(answer, accntKey)
+#                        hrJudge = checkAnswer(answer, hrKey)
+#                        if rdJudge == "correct":
+#                            print("rd password is correct")
+#                            GPIO.output(RD, 1)
+#                        elif accntJudge == "correct":
+#                            print("accounting password is correct")
+#                            GPIO.output(ACCT, 1)
+#                        elif hrJudge == "correct":
+#                            print("hr password is correct")
+#                            GPIO.output(HR, 1)
+#                        else:
+#                            print(answer + "is wrong! The correct rd answer is: "+ rdKey+ " The correct accnt answer is: "+ accntKey+ " TRY AGAIN!")
+#                        answer = ""
+
+                    #New code block, 4 numbers
+                    answer = appendAnswer(pressed, answer)
+                    print(answer)
+                    if len(answer)==4:
                         rdJudge = checkAnswer(answer, rdKey)
                         accntJudge = checkAnswer(answer, accntKey)
                         hrJudge = checkAnswer(answer, hrKey)
@@ -118,15 +143,18 @@ try:
                             print("accounting password is correct")
                             GPIO.output(ACCT, 1)
                         elif hrJudge == "correct":
-                            print("accounting password is correct")
+                            print("hr password is correct")
                             GPIO.output(HR, 1)
                         else:
                             print(answer + "is wrong! The correct rd answer is: "+ rdKey+ " The correct accnt answer is: "+ accntKey+ " TRY AGAIN!")
                         answer = ""
                     
                     
+                    sleep(0.2)
+                    #1/5 second pause to avoid double click
             
             GPIO.output(COL[j],0)
+            sleep(0.001)
 except KeyboardInterrupt:
     print("quitting")
     GPIO.cleanup()
